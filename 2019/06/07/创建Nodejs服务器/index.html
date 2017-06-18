@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+
+  <title>nvm + node - title </title>
+
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+
+  
+    <link rel="stylesheet" href="/css/main.css">
+    <noscript><link rel="stylesheet" href="/css/noscript.css" /></noscript>
+  
+</head>
+
+<body class="is-loading" id="top">
+ <div id="wrapper" class="fade-in">
+  <!-- Intro -->
+  
+  <!-- Header -->
+  <header id="header">
+    <a href="/" class="logo">Massively</a>
+</header>
+
+  <!-- Nav -->
+  
+
+<nav id="nav">
+    <ul class="links">
+        <li class=""><a href="/">主页</a></li>
+        <li class="active"><a href="javascript:;" class="generic">generic page</a></li>
+        <li class=""><a href="/tags">标签</a></li>
+        <li><a href="/me">我</a></li>
+    </ul>
+    <ul class="icons">
+        
+        
+            <li><a href="https://github.com/lrnman" target="_blank" class="icon fa-github"><span class="label">github</span></a></li>
+        
+            <li><a href="https://coding.net/u/jerryy" target="_blank" class="icon fa-code"><span class="label">coding</span></a></li>
+        
+    </ul>
+
+</nav>
+
+  <!-- Main -->
+  <div id="main">
+    <!-- Post -->
+<section class="post read-post">
+	<header class="major">
+		<span class="date">06 07, 2019</span>
+		<h1>nvm + nodejs + pm2 + express + mongodb</h1>
+	</header>
+    
+
+    <p>参考资料：</p>
+<ul>
+<li>nodejs部署<a href="https://help.aliyun.com/document_detail/50775.html?spm=5176.doc25426.6.655.kn1mB7" target="_blank" rel="external">阿里文档</a></li>
+<li>linux<a href="https://help.aliyun.com/video_detail/41676.html" target="_blank" rel="external">数据盘挂载</a></li>
+<li><a href="http://blog.chinaunix.net/uid-25057421-id-4359040.html" target="_blank" rel="external">mongodb</a></li>
+</ul>
+<p><img src="http://note.youdao.com/favicon.ico" alt=""></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>部署之前，请做如下准备工作：</p>
+<ul>
+<li>购买ECS实例</li>
+<li>您的实例运行的镜像是CentOS7.2</li>
+<li>您的实例可以连接公网</li>
+<li>本地已经安装用于连接 Linux 实例的工具，如 Xshell</li>
+<li>挂载数据盘</li>
+</ul>
+<p>首先升级CentOS</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">yum -y update</span></div></pre></td></tr></table></figure>
+<p>修改localhost</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vim <span class="regexp">/etc/</span>hosts</div></pre></td></tr></table></figure>
+<h2 id="挂载数据盘"><a href="#挂载数据盘" class="headerlink" title="挂载数据盘"></a>挂载数据盘</h2><ol>
+<li><p>执行fdisk -l命令，若发现没有 /dev/xvdb 标明您的云服务无数据盘（就不用进行这步）</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">fdisk -l</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>分区</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">fdisk /dev/xvdb</div><div class="line"><span class="built_in">m</span></div><div class="line"><span class="keyword">n</span></div><div class="line">p</div><div class="line">1</div><div class="line"><span class="comment">//接下来默认,最后：</span></div><div class="line"><span class="built_in">w</span></div><div class="line"><span class="comment">//执行fdisk -l命令可以看到，新的分区xvdb1已经建立完成了</span></div><div class="line">fdisk -<span class="keyword">l</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>格式化(如果你之前就有数据盘，只是你把系统盘重置了，需要将数据盘再次挂载到重置后的系统上，那么就不要对其格式化（跳过此步骤），直接执行后面的步骤挂载就可以了。)</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkfs<span class="selector-class">.ext3</span> /dev/xvdb1</div></pre></td></tr></table></figure>
+</li>
+<li><p>挂载<br>首先创建分区即将挂载点.我创建/alidata目录作为我的分区挂载点</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="string">//</span>添加该分区信息命令</div><div class="line"><span class="keyword">echo</span> <span class="string">"/dev/xvdb1  /alidata ext3 defaults 0 0"</span> &gt;&gt; <span class="string">/etc/fstab</span></div><div class="line"><span class="string">//</span>查看是否添加成功命令</div><div class="line">cat <span class="string">/etc/fstab</span></div><div class="line"><span class="string">//</span>挂载该数据盘</div><div class="line">mount -a</div><div class="line"><span class="string">//</span>查看挂载是否成功</div><div class="line">df -h</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="部署Node-js环境-使用NVM安装多版本"><a href="#部署Node-js环境-使用NVM安装多版本" class="headerlink" title="部署Node.js环境-使用NVM安装多版本"></a>部署Node.js环境-使用NVM安装多版本</h3><blockquote>
+<p>NVM（Node version manager）是Node.js的版本管理软件，使用户可以轻松在Node.js各个版本间进行切换。适用于长期做 node 开发的人员或有快速更新node版本、快速切换node版本这一需求的用户。</p>
+</blockquote>
+<p>安装步骤：</p>
+<p>1、直接使用git将源码克隆到本地的~/.nvm目录下，并检查最新版本。</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">yum install git</div><div class="line">git clone https:<span class="string">//github.com/cnpm/nvm.git</span> ~<span class="string">/.nvm</span> &amp;&amp; <span class="keyword">cd</span> ~<span class="string">/.nvm</span> &amp;&amp; git checkout `git describe <span class="params">--abbrev=0</span> <span class="params">--tags</span>`</div></pre></td></tr></table></figure>
+<p>2、激活NVM, 保证重启终端也能用nvm命令。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">echo <span class="string">". ~/.nvm/nvm.sh"</span> &gt;&gt; /etc<span class="built_in">/profile</span></div><div class="line">source /etc/profile</div></pre></td></tr></table></figure>
+<p>3、列出Node.js的所有版本。</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nvm <span class="built_in">list</span>-remote</div></pre></td></tr></table></figure>
+<p>4、安装多个Node.js版本。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">nvm</span> <span class="selector-tag">install</span> <span class="selector-tag">v6</span><span class="selector-class">.9</span><span class="selector-class">.5</span></div><div class="line"><span class="selector-tag">nvm</span> <span class="selector-tag">install</span> <span class="selector-tag">v7</span><span class="selector-class">.4</span><span class="selector-class">.0</span></div></pre></td></tr></table></figure>
+<p>5、查看已安装Node.js版本，当前使用的版本为v6.9.5。</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">nvm ls</span></div></pre></td></tr></table></figure>
+<p>-&gt;       v6.9.5<br>         v7.4.0</p>
+<p>6、切换Node.js版本至v7.4.0。</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">nvm use v7<span class="number">.4</span><span class="number">.0</span></div><div class="line">nvm alias <span class="section">default</span> v7<span class="number">.4</span><span class="number">.0</span> <span class="comment">//设置默认使用版本，重启终端后不再需要USE</span></div></pre></td></tr></table></figure>
+<p>Now using node v7.4.0</p>
+<p>NVM的更多操作请参考帮助文档：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nvm <span class="built_in">help</span></div></pre></td></tr></table></figure>
+<h2 id="pm2"><a href="#pm2" class="headerlink" title="pm2"></a>pm2</h2><p>首先需要安装pm2：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm <span class="keyword">install</span> -g pm2</div></pre></td></tr></table></figure>
+<p>运行app.js：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pm2 <span class="literal">start</span> app.js</div></pre></td></tr></table></figure>
+<h3 id="查看运行状态"><a href="#查看运行状态" class="headerlink" title="查看运行状态"></a>查看运行状态</h3><p>我们可以通过简单的命令查看应用的运行状态：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pm2 <span class="built_in">list</span></div></pre></td></tr></table></figure>
+<p>追踪资源运行情况</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">p<span class="name">m2</span> mo<span class="symbol">nit</span></div></pre></td></tr></table></figure>
+<p>查看应用详细部署状态</p>
+<p>如果我们想要查看一个应用详细的运行状态，比如ANodeBlog的状态，可以运行：</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">p<span class="name">m2</span> describe <span class="number">3</span></div></pre></td></tr></table></figure>
+<p>重启应用</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">p<span class="name">m2</span> restart appId</div></pre></td></tr></table></figure>
+<p>停止应用</p>
+<p>想要终止应用，只需要运行：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pm2 <span class="built_in">stop</span> app.js</div></pre></td></tr></table></figure>
+<h1 id="express"><a href="#express" class="headerlink" title="express"></a>express</h1><ol>
+<li>在本地编辑好项目。</li>
+<li>把项目上传到云（除了node_modules文件夹）。</li>
+<li><p>安装依赖</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">npm</span> i</div></pre></td></tr></table></figure>
+</li>
+<li><p>启动项目</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pm2 <span class="keyword">start</span> <span class="keyword">bin</span>/www</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h1 id="mongodb"><a href="#mongodb" class="headerlink" title="mongodb"></a>mongodb</h1><p>1.<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">vim /etc/yum.repos.d/mongodb-org-3.4.repo</div><div class="line">//复制下面的</div><div class="line">[mongodb-org-3.4]</div><div class="line">name=MongoDB Repository</div><div class="line">baseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/3.4/x86_64/</div><div class="line">gpgcheck=1</div><div class="line">enabled=1</div><div class="line">gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc</div></pre></td></tr></table></figure></p>
+<p>2.<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum <span class="keyword">install</span> -y mongodb-org</div></pre></td></tr></table></figure></p>
+<ol>
+<li>自定义放在哪里。创建db文件夹和log文件(如：/alidata/mongodb/db 和 /alidata/mongodb/logs/db.log),修改权限。</li>
+</ol>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">chown -R  <span class="string">mongod:</span>mongod <span class="regexp">/alidata/</span>mongodb</div></pre></td></tr></table></figure>
+<p>4.修改mongodb配置文件</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//在哪里安装的mongo</span></div><div class="line">whereis mongod</div><div class="line"><span class="comment">//修改配置</span></div><div class="line">vim <span class="meta-keyword">/etc/</span>mongod.conf</div><div class="line"></div><div class="line"><span class="meta"># where to write logging data.</span></div><div class="line"><span class="symbol">systemLog:</span></div><div class="line"><span class="symbol">  destination:</span> file</div><div class="line"><span class="symbol">  logAppend:</span> true</div><div class="line"><span class="symbol">  path:</span> <span class="meta-keyword">/alidata/</span>mongodb<span class="meta-keyword">/logs/</span>db.log</div><div class="line"></div><div class="line"><span class="meta"># Where and how to store data.</span></div><div class="line"><span class="symbol">storage:</span></div><div class="line"><span class="symbol">  dbPath:</span> <span class="meta-keyword">/alidata/</span>mongodb/db</div></pre></td></tr></table></figure>
+<ol>
+<li><p>查看/开启/关闭mongod服务</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">systemctl status  mongod<span class="selector-class">.service</span> <span class="comment">//等同 service mongod status</span></div><div class="line">systemctl start  mongod<span class="selector-class">.service</span></div><div class="line">systemctl restart  mongod.service</div></pre></td></tr></table></figure>
+</li>
+<li><p>查看端口是否开启</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ss -anp <span class="string">|grep mongod</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>7.设置开机自动启动mongodb</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">chkconfig mongod <span class="keyword">on</span></div></pre></td></tr></table></figure>
+
+
+	
+</section>
+
+<!-- Footer -->
+<footer>
+
+  <div class="pagination">
+  
+    <a href="/2013/12/25/no-title/" >
+      <div class="prev">
+        <strong>上一篇</strong>
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/24/中文測試/">
+      <div class="next">
+        
+        中文測試生資...
+        
+        <strong>下一篇</strong>
+      </div>
+    </a>
+  
+  </div>
+
+</footer>
+  </div>
+
+  <!-- Nav -->
+  <!-- Copyright -->
+<div id="copyright">
+    <ul>
+        <li>&copy; 2017 <a href="https://c.55to.top" title="Jerry" target="_blank" rel="external">Jerry</a> </li>
+        <li>设计: <a href="https://html5up.net" title="HTML5 UP" target="_blank" rel="external">HTML5 UP</a></li>
+        <li>主题化: <a href="https://c.55to.top" title="Jerry" target="_blank" rel="external">Jerry</a></li>
+        <li>支持: <a href="https://hexo.io" title="Hexo" target="_blank" rel="external">Hexo</a></li>
+    </ul>
+</div>
+
+ </div>
+ <script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.lazyload.min.js"></script>
+<script src="/js/jquery.poptrox.min.js"></script>
+<script src="/js/jquery.scrollex.min.js"></script>
+<script src="/js/jquery.scrolly.min.js"></script>
+<script src="/js/skel.min.js"></script>
+<script src="/js/util.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
