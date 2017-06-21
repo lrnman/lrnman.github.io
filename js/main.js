@@ -118,13 +118,20 @@
             }, 1);
         });
 
+        $tagCloudA = $('#tag_cloud a');
+
         // Update scrolly links.
-        $('#tag_cloud a').scrolly({
+        $tagCloudA.scrolly({
             speed: 200,
             offset: $nav.outerHeight() - 1
         });
 
-        $('#tag_cloud a').on('click', function() {
+        $('.go-catalog, .toc-box a').scrolly({
+            speed: 100,
+            offset: $nav.outerHeight() - 1
+        });
+
+        $($tagCloudA).on('click', function() {
             $tag.removeClass('active');
             var tagText = this.innerHTML;
             $('#' + tagText).addClass('active');
@@ -135,13 +142,15 @@
             speed: 900
         });
 
+        $goTop = $('.go-top');
+
         //top scrolly
-        $('.go-top').scrolly({
+        $goTop.scrolly({
             speed: 100
         });
 
         //fix history
-        $('.go-top').on('click', function (e) {
+        $goTop.on('click', function (e) {
             return false
         });
 
@@ -289,7 +298,7 @@
         }
 
         //计算距离的初始位置
-        var init = $main.position().top + 50;
+        var init = $main.offset().top + 50;
         var oldScrollY = init;
         var pre = init;
         //true 下， false 上
@@ -297,12 +306,12 @@
         var distance = 0;
 
         $(window).on('scroll', function () {
-            if (window.scrollY < init) {
+            if ($(window).scrollTop() < init) {
                 oldScrollY = pre = init;
                 towards = true;
                 return;
             }
-            var newScrollY = window.scrollY;
+            var newScrollY = $(window).scrollTop();
             if (oldScrollY - newScrollY > 0) {
                 if (towards == false) {
                     distance = Math.abs(pre - newScrollY);
@@ -327,27 +336,27 @@
 
         $(window).on('scroll', function () {
             //设置头部导航条的位置
-            if (!$nav.hasClass('attach-top') && (window.scrollY >= $main.position().top - $nav.height())) {
+            if (!$nav.hasClass('attach-top') && ($(window).scrollTop() >= $main.offset().top - $nav.height())) {
                 $nav.addClass('attach-top');
-            } else if ($nav.hasClass('attach-top') && (window.scrollY < $main.position().top - $nav.height())) {
+            } else if ($nav.hasClass('attach-top') && ($(window).scrollTop() < $main.offset().top - $nav.height())) {
                 $nav.removeClass('attach-top');
             }
 
-            //导航条的状态
-            if (window.scrollY < init) {
+            // 导航条的状态
+            if ($(window).scrollTop() < init) {
                 $nav.removeClass('hide');
                 return;
             }
             if (towards && distance > 110 && !$nav.hasClass('hide')) {
                 $nav.addClass('hide');
-            } else if (!towards && distance > 100 && $nav.hasClass('hide')) {
+            } else if (!towards && distance > 50 && $nav.hasClass('hide')) {
                 $nav.removeClass('hide');
             }
         });
 
 
         //设置小屏幕分页的下拉框点击跳转事件
-        $('#select_page option').on('click', function () {
+        $('#select_page').on('change', function () {
             location.assign(this.value);
         });
 
@@ -388,6 +397,53 @@
                 $body.removeClass('is-touch');
 
         });
+
+        //当鼠标在galler时， 不让BODY滚动
+        //计算桌面端的滚动条的宽度
+        var $galleryWrapper = $('.gallery-wrapper');
+        var $icons = $nav.find('.icons');
+        var w = window.innerWidth - document.body.clientWidth;
+        var addClass = {
+            'margin-right': w,
+            'overflow': 'hidden'
+        };
+        var removeClass = {
+            'margin-right': 'auto',
+            'overflow': 'auto'
+        };
+
+        $galleryWrapper.hover(function () {
+            $body.css(addClass);
+            if($nav.hasClass('attach-top')){
+                $icons.css({
+                    'padding-right': w
+                });
+            }
+        }, function () {
+            $body.css(removeClass);
+            if($nav.hasClass('attach-top')) {
+                $icons.css({
+                    'padding-right': 0
+                });
+            }
+        });
+
+        //对移动端修复
+        $galleryWrapper.on('touchstart', function () {
+            $body.css(addClass);
+        });
+
+        $galleryWrapper.on('touchend', function () {
+            $body.css(removeClass);
+        });
+
+        var $banner = $('#banner');
+        var timeId = setInterval(function () {
+            if ($banner.innerHeight() == 0) {
+                $banner.remove();
+                clearInterval(timeId);
+            }
+        }, 100);
     });
 
 })(jQuery);

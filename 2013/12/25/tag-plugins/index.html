@@ -18,6 +18,9 @@
 </head>
 
 <body class="is-loading" id="top">
+
+
+
  <div id="wrapper" class="fade-in">
   <!-- Intro -->
   
@@ -39,12 +42,18 @@
     <ul class="icons">
         
         
+        <li><a href="javascript:history.back();" class="go-back"><i class="fa fa-arrow-left"></i>上页</a></li>
+            
+        
+        
+        <li class="division"></li>
+        
+        
             <li><a href="https://github.com/lrnman" target="_blank" class="icon fa-github"><span class="label">github</span></a></li>
         
             <li><a href="https://coding.net/u/jerryy" target="_blank" class="icon fa-code"><span class="label">coding</span></a></li>
         
     </ul>
-
 </nav>
 
   <!-- Main -->
@@ -53,7 +62,7 @@
 <section class="post read-post">
 	<header class="major">
 		<span class="date">12 25, 2013</span>
-		<h1>Tag Plugins</h1>
+		<h1 id="title">Tag Plugins</h1>
 	</header>
     
 
@@ -67,7 +76,7 @@
 <footer><strong>@DevDocs</strong><cite><a href="https://twitter.com/devdocs/status/356095192085962752" target="_blank" rel="external">twitter.com/devdocs/status/356095192085962752</a></cite></footer></blockquote>
 <h3 id="Quote-from-an-article-on-the-web"><a href="#Quote-from-an-article-on-the-web" class="headerlink" title="Quote from an article on the web"></a>Quote from an article on the web</h3><blockquote><p>Every interaction is both precious and an opportunity to delight.</p>
 <footer><strong>Seth Godin</strong><cite><a href="http://sethgodin.typepad.com/seths_blog/2009/07/welcome-to-island-marketing.html" target="_blank" rel="external">Welcome to Island Marketing</a></cite></footer></blockquote>
-<h2 id="Code-Block"><a href="#Code-Block" class="headerlink" title="Code Block"></a>Code Block</h2><h3 id="Normal-code-block"><a href="#Normal-code-block" class="headerlink" title="Normal code block"></a>Normal code block</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">$initHighlight</span>(<span class="params">block, flags</span>) </span>&#123;</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">if</span> (block.className.search(<span class="regexp">/\bno\-highlight\b/</span>) != <span class="number">-1</span>)</div><div class="line">      <span class="keyword">return</span> processBlock(block.function, <span class="literal">true</span>, <span class="number">0x0F</span>) + <span class="string">' class=""'</span>;</div><div class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">    <span class="comment">/* handle exception */</span></div><div class="line">    <span class="keyword">var</span> e4x =</div><div class="line">        &lt;div&gt;Example</div><div class="line">            &lt;p&gt;1234&lt;/p&gt;&lt;/div&gt;;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span> / <span class="number">2</span>; i &lt; classes.length; i++) &#123; <span class="comment">// "0 / 2" should not be parsed as regexp</span></div><div class="line">    <span class="keyword">if</span> (checkCondition(classes[i]) === <span class="literal">undefined</span>)</div><div class="line">      <span class="keyword">return</span> <span class="regexp">/\d+[\s/]/g</span>;</div><div class="line">  &#125;</div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">Array</span>.every(classes, <span class="built_in">Boolean</span>));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Code-Block"><a href="#Code-Block" class="headerlink" title="Code Block"></a>Code Block</h2><h3 id="Normal-code-block"><a href="#Normal-code-block" class="headerlink" title="Normal code block"></a>Normal code block</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">$initHighlight</span>(<span class="params">block, flags</span>) </span>&#123;</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">if</span> (block.className.search(<span class="regexp">/\bno\-highlight\b/</span>) != <span class="number">-1</span>)</div><div class="line">      <span class="keyword">return</span> processBlock(block.function, <span class="literal">true</span>, <span class="number">0x0F</span>) + <span class="string">' class=""'</span>;</div><div class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">    <span class="comment">/* handle exception */</span></div><div class="line">    <span class="keyword">var</span> e4x =</div><div class="line">        &lt;div&gt;Example</div><div class="line">            &lt;p&gt;1234&lt;/p&gt;&lt;/div&gt;;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span> / <span class="number">2</span>; i &lt; classes.length; i++) &#123; <span class="comment">// "0 / 2" should not be parsed as regexp testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest</span></div><div class="line">    <span class="keyword">if</span> (checkCondition(classes[i]) === <span class="literal">undefined</span>)</div><div class="line">      <span class="keyword">return</span> <span class="regexp">/\d+[\s/]/g</span>;</div><div class="line">  &#125;</div><div class="line">  <span class="built_in">console</span>.log(<span class="built_in">Array</span>.every(classes, <span class="built_in">Boolean</span>));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="With-caption"><a href="#With-caption" class="headerlink" title="With caption"></a>With caption</h3><figure class="highlight cpp"><figcaption><span>Array.map</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">array</span>.<span class="built_in">map</span>(callback[, thisArg])</div></pre></td></tr></table></figure>
 <h3 id="With-caption-and-URL"><a href="#With-caption-and-URL" class="headerlink" title="With caption and URL"></a>With caption and URL</h3><figure class="highlight excel"><figcaption><span>.compact</span><a href="http://underscorejs.org/#compact" target="_blank" rel="external">Underscore.js</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">.compact([<span class="number">0</span>, <span class="number">1</span>, <span class="built_in">false</span>, <span class="number">2</span>, ‘’, <span class="number">3</span>]);</div><div class="line">=&gt; [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
 <h3 id="With-marked-lines"><a href="#With-marked-lines" class="headerlink" title="With marked lines"></a>With marked lines</h3><p>Line 1,7-8,10 should be marked with different color.</p>
@@ -94,7 +103,7 @@
       <div class="prev">
         <strong>上一篇</strong>
         
-        www.go...
+        www.ba...
         
       </div>
     </a>
@@ -112,15 +121,17 @@
   </div>
 
 </footer>
+
+
   </div>
 
   <!-- Nav -->
   <!-- Copyright -->
 <div id="copyright">
     <ul>
-        <li>&copy; 2017 <a href="https://c.55to.top" title="Jerry" target="_blank" rel="external">Jerry</a> </li>
+        <li>&copy; 2017 <a href="https://c.55to.top" target="_blank" alt="廖建" title="廖建">JERRY</a></li>
         <li>设计: <a href="https://html5up.net" title="HTML5 UP" target="_blank" rel="external">HTML5 UP</a></li>
-        <li>主题化: <a href="https://c.55to.top" title="Jerry" target="_blank" rel="external">Jerry</a></li>
+        <li>主题化: <a href="https://c.55to.top" target="_blank" alt="廖建" title="廖建">JERRY</a></li>
         <li>支持: <a href="https://hexo.io" title="Hexo" target="_blank" rel="external">Hexo</a></li>
     </ul>
 </div>

@@ -21,7 +21,8 @@
             $body = $('body'),
             $header = $('#header'),
             $all = $body.add($header),
-            $li = $('#header nav:not(.left) li');
+            $li = $('#header nav:not(.left) li'),
+            $gallery = $('.gallery');
 
         // Disable animations/transitions until the page has loaded.
         $body.addClass('is-loading');
@@ -90,12 +91,12 @@
         // Gallery.
         $window.on('load', function () {
 
-            var $gallery = $('.gallery');
+
 
             $gallery.poptrox({
                 baseZIndex: 10001,
                 useBodyOverflow: false,
-                usePopupEasyClose: false,
+                usePopupEasyClose: true,
                 overlayColor: '#1f2328',
                 overlayOpacity: 0.65,
                 usePopupDefaultStyling: false,
@@ -126,7 +127,7 @@
         var towards = true;
         var distance = 0;
         $(window).on('scroll', function () {
-            var newScrollY = window.scrollY;
+            var newScrollY = $(window).scrollTop();
             if (oldScrollY - newScrollY > 0) {
                 if (towards == false) {
                     distance = Math.abs(pre - newScrollY);
@@ -326,15 +327,16 @@
         // 导航条的显示状态
         var isHided = false;
         $(window).on('scroll', function () {
-            if (towards && distance > 150 && !isHided) {
+            if (towards && distance > 100 && !isHided) {
                 isHided = true;
                 $header.stop(true);
                 $header.slideUp('slow');
-            } else if (!towards && distance > 100 && isHided) {
+            } else if (!towards && distance > 50 && isHided) {
                 isHided = false;
                 $header.stop(true);
                 $header.slideDown('fast');
             }
         });
+
     });
 })(jQuery);
